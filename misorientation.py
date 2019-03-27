@@ -1,4 +1,4 @@
-
+#!/usr/bin/python
 from __future__ import division
 import numpy as np
 from Tkinter import *
@@ -6,14 +6,14 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolb
 from matplotlib.figure import Figure
 from matplotlib import pyplot as plt
 from PIL import Image
-import PngImagePlugin
+from PIL import PngImagePlugin
 import ttk
 import sys
-import os
 from fractions import Fraction
 from tkFileDialog import *
-#import pdb
-
+import os
+import matplotlib as mpl
+mpl.rcParams['font.size'] = 12
 pi=np.pi
 
 
@@ -577,7 +577,7 @@ def desorientation():
     a.figure.clear()
     a = f.add_subplot(111)
     fn = os.path.join(os.path.dirname(__file__), 'stereo.png')      
-    img=Image.open(fn)
+    img=np.array(Image.open(fn))
     
     cryststruct()        
     phi1a=eval(phi1A_entry.get())
@@ -592,10 +592,10 @@ def desorientation():
     k=0
     S=Sy(gA)
     
-    D0=np.zeros((S.shape[0]/3,5))
-    D1=np.zeros((S.shape[0]/3,3))
-    Qp=np.zeros((S.shape[0]/3,2))
-    for i in range(0,S.shape[0],3):
+    D0=np.zeros((int(np.shape(S)[0]/3),5))
+    D1=np.zeros((int(np.shape(S)[0]/3),3))
+    Qp=np.zeros((int(np.shape(S)[0]/3),2))
+    for i in range(0,np.shape(S)[0],3):
         In=np.dot(np.array([[S[i,0],S[i+1,0],S[i+2,0]],[S[i,1],S[i+1,1],S[i+2,1]],[S[i,2],S[i+1,2],S[i+2,2]]]),gA)
         Ing=np.dot(In,np.array([0,0,1]))
         In2=np.dot(Rot(-phi2b,Ing[0],Ing[1],Ing[2]),In)
@@ -608,6 +608,9 @@ def desorientation():
         D0[k,0]=V[0,0]/np.linalg.norm(V)
         D0[k,1]=V[0,1]/np.linalg.norm(V)
         D0[k,2]=V[0,2]/np.linalg.norm(V)
+        
+        
+        
        
         Ds1=np.dot(np.linalg.inv(gB),np.array([D0[k,0],D0[k,1],D0[k,2]]))
     
@@ -625,7 +628,7 @@ def desorientation():
            D0[k,0]=-D0[k,0]
            D0[k,1]=-D0[k,1]
            D0[k,2]=-D0[k,2]
-           D1[k,0]=-D1[k,0] 
+           D1[k,0]=-D1[k,0]
            D1[k,1]=-D1[k,1]
            D1[k,2]=-D1[k,2]
            
@@ -638,11 +641,10 @@ def desorientation():
     
     a.plot(Qp[:,0]+600/2,Qp[:,1]+600/2,'ro')           
     a.axis([0,600,0,600])
-    a.imshow(img)
+    a.imshow(img,interpolation="bicubic")
     a.axis('off')   
     a.figure.canvas.draw()
     trace()
-    
     
     return Qp,S,D1
 ####################################################################
@@ -653,13 +655,13 @@ def trace():
     a = f.add_subplot(111)
     
     fn = os.path.join(os.path.dirname(__file__), 'stereo.png')      
-    img=Image.open(fn)
+    img=np.array(Image.open(fn))
         
-    Pa=np.zeros((axesA.shape[0],2))
-    Pb=np.zeros((axesB.shape[0],2))
+    Pa=np.zeros((np.shape(axesA)[0],2))
+    Pb=np.zeros((np.shape(axesB)[0],2))
     
     
-    for i in range(0,axesA.shape[0]):
+    for i in range(0,np.shape(axesA)[0]):
         axeshA[i,:]=axeshA[i,:]/np.linalg.norm(axeshA[i,:])
         Ta[i,:]=np.dot(MA,axeshA[i,:])
         Pa[i,:]=proj(Ta[i,0],Ta[i,1],Ta[i,2])*600/2
@@ -670,7 +672,7 @@ def trace():
             else:
                sA=str(int(axesA[i,0]))+str(int(axesA[i,1]))+str(int(axesA[i,2]))  
             a.annotate(sA,(Pa[i,0]+600/2,Pa[i,1]+600/2))
-    for i in range(0,axesB.shape[0]):
+    for i in range(0,np.shape(axesB)[0]):
         axeshB[i,:]=axeshB[i,:]/np.linalg.norm(axeshB[i,:])
         Tb[i,:]=np.dot(MB,axeshB[i,:])
         Pb[i,:]=proj(Tb[i,0],Tb[i,1],Tb[i,2])*600/2
@@ -683,7 +685,7 @@ def trace():
             a.annotate(sB,(Pb[i,0]+600/2,Pb[i,1]+600/2))   
     
     
-    for l in range(0,int(S.shape[0]/3)):
+    for l in range(0,int(np.shape(S)[0]/3)):
         if show_angle.get()==1:
             sangle=str(np.round(D0[l,3],decimals=1))
             a.annotate(sangle,(Qp[l,0]+600/2,Qp[l,1]+600/2),size=8)
@@ -700,7 +702,7 @@ def trace():
     a.plot(Pb[:,0]+600/2,Pb[:,1]+600/2,'go')
     a.plot(Qp[:,0]+600/2,Qp[:,1]+600/2,'ro') 
     a.axis([0,600,0,600])
-    a.imshow(img)
+    a.imshow(img,interpolation="bicubic")
     a.axis('off')   
     a.figure.canvas.draw()
     
@@ -719,14 +721,14 @@ def princ():
     phib=eval(phiB_entry.get())
     phi2b=eval(phi2B_entry.get())
     fn = os.path.join(os.path.dirname(__file__), 'stereo.png')      
-    img=Image.open(fn)
+    img=np.array(Image.open(fn))
     crist()    
-    Pa=np.zeros((axesA.shape[0],2))
-    Ta=np.zeros((axesA.shape))
-    Pb=np.zeros((axesB.shape[0],2))
-    Tb=np.zeros((axesB.shape))
+    Pa=np.zeros((np.shape(axesA)[0],2))
+    Ta=np.zeros((np.shape(axesA)))
+    Pb=np.zeros((np.shape(axesB)[0],2))
+    Tb=np.zeros((np.shape(axesB)))
     
-    for i in range(0,axesA.shape[0]):
+    for i in range(0,np.shape(axesA)[0]):
         axeshA[i,:]=axeshA[i,:]/np.linalg.norm(axeshA[i,:])
         Ta[i,:]=np.dot(rotation(phi1a,phia,phi2a),axeshA[i,:])
         Pa[i,:]=proj(Ta[i,0],Ta[i,1],Ta[i,2])*600/2
@@ -736,7 +738,7 @@ def princ():
         else:
            sA=str(int(axesA[i,0]))+str(int(axesA[i,1]))+str(int(axesA[i,2]))  
         a.annotate(sA,(Pa[i,0]+600/2,Pa[i,1]+600/2))
-    for i in range(0,axesB.shape[0]):
+    for i in range(0,np.shape(axesB)[0]):
         axeshB[i,:]=axeshB[i,:]/np.linalg.norm(axeshB[i,:])
         Tb[i,:]=np.dot(rotation(phi1b,phib,phi2b),axeshB[i,:])
         Pb[i,:]=proj(Tb[i,0],Tb[i,1],Tb[i,2])*600/2
@@ -752,7 +754,7 @@ def princ():
     a.plot(Pb[:,0]+600/2,Pb[:,1]+600/2,'go')
     a.axis([0,600,0,600])
     
-    a.imshow(img)
+    a.imshow(img,interpolation="bicubic")
     a.axis('off')   
     a.figure.canvas.draw() 
     
@@ -768,12 +770,13 @@ def princ():
 ######################################################################
 
 def file_save():
-    global D1,D0
+    global D1,D0,D
     fout = asksaveasfile(mode='w', defaultextension=".txt")
     
-    for i in range(D1.shape[0]):
-        text2save = str(int(D0[i,4]))+'\t'+'['+str(int(D1[i,0]))+','+str(int(D1[i,1]))+','+str(int(D1[i,2]))+']'+'\t '+str(np.around(D0[i,3],decimals=2))
-        fout.write("%s\n" % text2save)
+    for i in range(np.shape(D1)[0]):
+		
+		text2save = str(int(D0[i,4]))+'\t'+'['+str(int(D1[i,0]))+','+str(int(D1[i,1]))+','+str(int(D1[i,2]))+']'+'\t '+str(np.around(D0[i,3],decimals=2))
+		fout.write("%s\n" % text2save)
         
     fout.close()    
 
@@ -790,10 +793,10 @@ def image_save():
 def init():
     global var_uvw,D1,S,Qp,show_ind,show_angle,show_axe,show_num,dmip,d_label_var
     fn = os.path.join(os.path.dirname(__file__), 'stereo.png')      
-    img=Image.open(fn)
+    img=np.array(Image.open(fn))
     a = f.add_subplot(111)
     a.axis('off')
-    a.imshow(img)
+    a.imshow(img,interpolation="bicubic")
     a.figure.canvas.draw()
     S=np.zeros((1,5))
     Qp=np.zeros((1,2))
@@ -842,9 +845,9 @@ canvas = FigureCanvasTkAgg(f, master=root)
 canvas.get_tk_widget().place(x=0,y=0,height=800,width=800)
 canvas._tkcanvas.bind('<Button-3>', click_a_pole)
 canvas.show()
-#toolbar = NavigationToolbar2TkAgg( canvas, root )
-#toolbar.zoom('off')
-#toolbar.update()
+toolbar = NavigationToolbar2TkAgg( canvas, root )
+toolbar.zoom('off')
+toolbar.update()
 
 
 ###################################################
@@ -876,13 +879,13 @@ phiA_entry.configure(selectbackground="#c4c4c4")
 phiA_entry.configure(selectforeground="black")
 
 label_euler = Label (master=root)
-label_euler.place(relx=0.77,rely=0.45,height=19,width=80)
+label_euler.place(relx=0.77,rely=0.45,height=19,width=63)
 label_euler.configure(activebackground="#cccccc")
 label_euler.configure(activeforeground="black")
 label_euler.configure(cursor="fleur")
 label_euler.configure(foreground="black")
 label_euler.configure(highlightcolor="black")
-label_euler.configure(text='''Euler angles ''')
+label_euler.configure(text='''Angle Euler ''')
 
 phi2A_entry = Entry (master=root)
 phi2A_entry.place(relx=0.7,rely=0.6,relheight=0.03,relwidth=0.07)
@@ -902,7 +905,7 @@ button_trace.configure(command=princ)
 button_trace.configure(foreground="black")
 button_trace.configure(highlightcolor="black")
 button_trace.configure(pady="0")
-button_trace.configure(text='''Plot''')
+button_trace.configure(text='''TRACER''')
 
 Phi1A_label = Label (master=root)
 Phi1A_label.place(relx=0.67,rely=0.5,height=19,width=33)
@@ -930,7 +933,7 @@ Phi2A_label.configure(text='''Phi2A''')
 
 Cristal_label = Label (master=root)
 Cristal_label.place(relx=0.66,rely=0.03,height=19,width=142)
-Cristal_label.configure(text='''Crystal parameters''')
+Cristal_label.configure(text='''Parametres cristallins''')
 
 a_cristal_label = Label (master=root)
 a_cristal_label.place(relx=0.68,rely=0.06,height=19,width=12)
@@ -1033,7 +1036,7 @@ uvw_button.configure(variable=var_uvw)
 
 e_label = Label (master=root)
 e_label.place(relx=0.66,rely=0.31,height=19,width=56)
-e_label.configure(text='''max indice''')
+e_label.configure(text='''indice max''')
 
 e_entry = Entry (master=root)
 e_entry.place(relx=0.72,rely=0.31,relheight=0.03,relwidth=0.05)
@@ -1085,7 +1088,7 @@ label_addpoleA.configure(activebackground="#cccccc")
 label_addpoleA.configure(activeforeground="black")
 label_addpoleA.configure(foreground="black")
 label_addpoleA.configure(highlightcolor="black")
-label_addpoleA.configure(text='''Add pole A''')
+label_addpoleA.configure(text='''Ajouter un pole A''')
 
 pole1A_entry = Entry (master=root)
 pole1A_entry.place(relx=0.81,rely=0.06,relheight=0.02
@@ -1125,19 +1128,19 @@ addpoleA_button.configure(command=addpoleA)
 addpoleA_button.configure(foreground="black")
 addpoleA_button.configure(highlightcolor="black")
 addpoleA_button.configure(pady="0")
-addpoleA_button.configure(text='''Add''')
+addpoleA_button.configure(text='''Ajouter''')
 
 symA_button = Button (master=root)
 symA_button.place(relx=0.87,rely=0.11,height=31,width=71)
 symA_button.configure(command=addpoleA_sym)
 symA_button.configure(pady="0")
-symA_button.configure(text='''Symmetry''')
+symA_button.configure(text='''Symetrie''')
 
 trace_planA_button = Button (master=root)
 trace_planA_button.place(relx=0.93,rely=0.11,height=31,width=61)
 trace_planA_button.configure(command=trace_planA)
 trace_planA_button.configure(pady="0")
-trace_planA_button.configure(text='''Plane''')
+trace_planA_button.configure(text='''Trace plan''')
 
 phi1B_entry = Entry (master=root)
 phi1B_entry.place(relx=0.84,rely=0.5,relheight=0.03,relwidth=0.07)
@@ -1202,7 +1205,7 @@ label_addpoleB.configure(activebackground="#cccccc")
 label_addpoleB.configure(activeforeground="black")
 label_addpoleB.configure(foreground="black")
 label_addpoleB.configure(highlightcolor="black")
-label_addpoleB.configure(text='''Add pole B''')
+label_addpoleB.configure(text='''Ajouter un pole B''')
 
 pole1B_entry = Entry (master=root)
 pole1B_entry.place(relx=0.81,rely=0.24,relheight=0.02
@@ -1242,19 +1245,19 @@ addpoleB_button.configure(command=addpoleB)
 addpoleB_button.configure(foreground="black")
 addpoleB_button.configure(highlightcolor="black")
 addpoleB_button.configure(pady="0")
-addpoleB_button.configure(text='''Add''')
+addpoleB_button.configure(text='''Ajouter''')
 
 symB_button = Button (master=root)
-symB_button.place(relx=0.87,rely=0.28,height=31,width=70)
+symB_button.place(relx=0.87,rely=0.28,height=31,width=61)
 symB_button.configure(command=addpoleB_sym)
 symB_button.configure(pady="0")
-symB_button.configure(text='''Symmetry''')
+symB_button.configure(text='''Symetrie''')
 
 trace_planB_button = Button (master=root)
 trace_planB_button.place(relx=0.93,rely=0.28,height=31,width=59)
 trace_planB_button.configure(command=trace_planB)
 trace_planB_button.configure(pady="0")
-trace_planB_button.configure(text='''Plane''')
+trace_planB_button.configure(text='''Trace plan''')
 
 button_desorientation = Button (master=root)
 button_desorientation.place(relx=0.81,rely=0.66,height=21,width=98)
@@ -1266,39 +1269,39 @@ button_desorientation.configure(command=desorientation)
 button_desorientation.configure(foreground="black")
 button_desorientation.configure(highlightcolor="black")
 button_desorientation.configure(pady="0")
-button_desorientation.configure(text='''Misorientation''')
+button_desorientation.configure(text='''DESORIENTATION''')
 
 show_ind_button = Checkbutton (master=root)
 show_ind_button.place(relx=0.81,rely=0.7,relheight=0.03
                 ,relwidth=0.11)
-show_ind_button.configure(text='''Show indices''')
+show_ind_button.configure(text='''Montrer indices''')
 show_ind_button.configure(variable=show_ind)
 
 show_angle_button = Checkbutton (master=root)
 show_angle_button.place(relx=0.81,rely=0.74,relheight=0.03
                 ,relwidth=0.11)
-show_angle_button.configure(text='''Show angle''')
+show_angle_button.configure(text='''Montrer angle''')
 show_angle_button.configure(variable=show_angle)
 
 show_axe_button = Checkbutton (master=root)
 show_axe_button.place(relx=0.81,rely=0.78,relheight=0.03
                 ,relwidth=0.11)
-show_axe_button.configure(text='''Show axes''')
+show_axe_button.configure(text='''Montrer axes''')
 show_axe_button.configure(variable=show_axe)
 
 show_num_button = Checkbutton (master=root)
 show_num_button.place(relx=0.81,rely=0.82,relheight=0.03
                 ,relwidth=0.11)
-show_num_button.configure(text='''Show Number''')
+show_num_button.configure(text='''Montrer Numero''')
 show_num_button.configure(variable=show_num)
 
 menu = Menu(master=root)
 filemenu = Menu(menu, tearoff=0)
-menu.add_cascade(label="Save", menu=filemenu)
+menu.add_cascade(label="Sauver", menu=filemenu)
 
 root.config(menu=menu)
-filemenu.add_command(label="Save data", command=file_save) 
-filemenu.add_command(label="Save figure", command=image_save) 
+filemenu.add_command(label="Sauver donnees", command=file_save) 
+filemenu.add_command(label="Sauver figure", command=image_save) 
 ######################################################################################################
 ######## importer des structures cristallines depuis un fichier Nom,a,b,c,alpha,beta,gamma,space group
 ######################################################################################################

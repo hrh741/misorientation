@@ -4,7 +4,7 @@ Misorientation
 Misorientation is a script that allows you to determine misorientation axis and angle across a grain boundary between two crystals A and B of known orientation (2 sets of Euler angles) and crystal parameters (a,b,c, alpha, beta, gamma). 
 
 ## Requirements
-* Python 2.7 with Matplotlib, Numpy, Tkinter, PIL (available through [Enthought Canopy](https://store.enthought.com/downloads/) or [Anaconda](http://continuum.io/downloads) distributions for instance).
+* Python 2.7 with Matplotlib 2.1.1, Numpy 1.13.3, Tkinter, Pillow 5.3.0 (available through [Enthought Canopy](https://store.enthought.com/downloads/) or [Anaconda](http://continuum.io/downloads) distributions for instance).
 * Mac users need to install [Active Tcl](http://www.activestate.com/activetcl/downloads).
 * Run the script python /my-path-to-the-script/misorientation.py
 
