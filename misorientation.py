@@ -14,10 +14,8 @@ from tkFileDialog import *
 import os
 import matplotlib as mpl
 mpl.rcParams['font.size'] = 12
-pi=np.pi
 
 
-#Image._initialized=2
 ###################################################################"
 ##### Fonction projection  sur l'abaque
 ####################################################################
@@ -42,9 +40,9 @@ def proj(x,y,z):
 ####################################################################
 
 def rotation(phi1,phi,phi2):
-   phi1=phi1*pi/180;
-   phi=phi*pi/180;
-   phi2=phi2*pi/180;
+   phi1=phi1*np.pi/180;
+   phi=phi*np.pi/180;
+   phi2=phi2*np.pi/180;
    R=np.array([[np.cos(phi1)*np.cos(phi2)-np.cos(phi)*np.sin(phi1)*np.sin(phi2),
             -np.cos(phi)*np.cos(phi2)*np.sin(phi1)-np.cos(phi1)*
             np.sin(phi2),np.sin(phi)*np.sin(phi1)],[np.cos(phi2)*np.sin(phi1)
@@ -58,7 +56,7 @@ def rotation(phi1,phi,phi2):
 ####################################################################
 
 def Rot(th,a,b,c):
-   th=th*pi/180;
+   th=th*np.pi/180;
    aa=a/np.linalg.norm([a,b,c]);
    bb=b/np.linalg.norm([a,b,c]);
    cc=c/np.linalg.norm([a,b,c]);
@@ -84,9 +82,9 @@ def crist():
     gam=eval(gam_entry.get())
     e=eval(e_entry.get())
     d2=eval(d_label_var.get())
-    alp=alp*pi/180;
-    bet=bet*pi/180;
-    gam=gam*pi/180;
+    alp=alp*np.pi/180;
+    bet=bet*np.pi/180;
+    gam=gam*np.pi/180;
     V=a*b*c*np.sqrt(1-(np.cos(alp)**2)-(np.cos(bet))**2-(np.cos(gam))**2+2*b*c*np.cos(alp)*np.cos(bet)*np.cos(gam))
     D=np.array([[a,b*np.cos(gam),c*np.cos(bet)],[0,b*np.sin(gam),  c*(np.cos(alp)-np.cos(bet)*np.cos(gam))/np.sin(gam)],[0,0,V/(a*b*np.sin(gam))]])
     Dstar=np.transpose(np.linalg.inv(D))
@@ -321,10 +319,10 @@ def trace_planA():
          t=90
          w=0
     else:
-         t=np.arctan2(S[1],S[0])*180/pi
+         t=np.arctan2(S[1],S[0])*180/np.pi
          w=0
-    ph=np.arccos(S[2]/r)*180/pi
-    for g in np.linspace(-pi,pi-0.00001,100):
+    ph=np.arccos(S[2]/r)*180/np.pi
+    for g in np.linspace(-np.pi,np.pi-0.00001,100):
         Aa=np.dot(Rot(t,0,0,1),np.dot(Rot(ph,0,1,0),np.array([np.sin(g),np.cos(g),0])))
         A[:,w]=proj(Aa[0],Aa[1],Aa[2])*600/2
         if A[0,w]<>75000:
@@ -362,10 +360,10 @@ def trace_planB():
          t=90
          w=0
     else:
-         t=np.arctan2(S[1],S[0])*180/pi
+         t=np.arctan2(S[1],S[0])*180/np.pi
          w=0
-    ph=np.arccos(S[2]/r)*180/pi
-    for g in np.linspace(-pi,pi-0.00001,100):
+    ph=np.arccos(S[2]/r)*180/np.pi
+    for g in np.linspace(-np.pi,np.pi-0.00001,100):
         Aa=np.dot(Rot(t,0,0,1),np.dot(Rot(ph,0,1,0),np.array([np.sin(g),np.cos(g),0])))
         A[:,w]=proj(Aa[0],Aa[1],Aa[2])*600/2
         if A[0,w]<>75000:
@@ -566,11 +564,17 @@ def Sy(g):
     
     return S
     
-def null(A, eps=1e-15):
-    u, s, vh = np.linalg.svd(A)
-    null_space = np.compress(s <= eps, vh, axis=0)
-    return null_space.T
-    
+def null(A, rcond=None):
+
+    u, s, vh = np.linalg.svd(A, full_matrices=True)
+    M, N = u.shape[0], vh.shape[1]
+    if rcond is None:
+        rcond = np.finfo(s.dtype).eps * max(M, N)
+    tol = np.amax(s) * rcond
+    num = np.sum(s > tol, dtype=int)
+    Q = vh[num:,:].T.conj()
+    return Q
+
 def desorientation():
     global D0,S,D1,cs,V,Qp
     a = f.add_subplot(111)
@@ -603,14 +607,25 @@ def desorientation():
         In3=np.dot(Rot(-phib,Ing2[0],Ing2[1],Ing2[2]),In2)
         Ing3=np.dot(In3,np.array([0,0,1]))
         A=np.dot(Rot(-phi1b,Ing3[0],Ing3[1],Ing3[2]),In3)-np.eye(3)
-        V=null(A).T
+        V=null(A,0.001).T
         
-        D0[k,0]=V[0,0]/np.linalg.norm(V)
-        D0[k,1]=V[0,1]/np.linalg.norm(V)
-        D0[k,2]=V[0,2]/np.linalg.norm(V)
-        
-        
-        
+        if 0.5*(np.trace(A+np.eye(3))-1)>1:
+        	D0[k,3]=0
+        elif 0.5*(np.trace(A+np.eye(3))-1)<-1:
+        	D0[k,3]=180
+        else:
+        	D0[k,3]=np.arccos(0.5*(np.trace(A+np.eye(3))-1))*180/np.pi
+        	
+        if np.abs(D0[k,3])<1e-5:
+        	D0[k,0]=0
+        	D0[k,1]=0
+        	D0[k,2]=0
+        else:
+		D0[k,0]=V[0,0]/np.linalg.norm(V)
+		D0[k,1]=V[0,1]/np.linalg.norm(V)
+		D0[k,2]=V[0,2]/np.linalg.norm(V)
+
+      
        
         Ds1=np.dot(np.linalg.inv(gB),np.array([D0[k,0],D0[k,1],D0[k,2]]))
     
@@ -622,7 +637,6 @@ def desorientation():
         D1[k,1]=F1.numerator*F0.denominator*F2.denominator
         D1[k,2]=F2.numerator*F0.denominator*F1.denominator
            
-        D0[k,3]=np.arccos(0.5*(np.trace(A+np.eye(3))-1))*180/pi
         
         if D0[k,2]<0:
            D0[k,0]=-D0[k,0]
@@ -860,7 +874,7 @@ init()
 # Boutons
 ##############################################
 phi1A_entry = Entry (master=root)
-phi1A_entry.place(relx=0.7,rely=0.5,relheight=0.03,relwidth=0.07)
+phi1A_entry.place(relx=0.72,rely=0.5,relheight=0.03,relwidth=0.07)
 phi1A_entry.configure(background="white")
 phi1A_entry.configure(foreground="black")
 phi1A_entry.configure(highlightbackground="#e0e0dfdfe3e3")
@@ -870,7 +884,7 @@ phi1A_entry.configure(selectbackground="#c4c4c4")
 phi1A_entry.configure(selectforeground="black")
 
 phiA_entry = Entry (master=root)
-phiA_entry.place(relx=0.7,rely=0.55,relheight=0.03,relwidth=0.07)
+phiA_entry.place(relx=0.72,rely=0.55,relheight=0.03,relwidth=0.07)
 phiA_entry.configure(background="white")
 phiA_entry.configure(foreground="black")
 phiA_entry.configure(highlightcolor="black")
@@ -879,16 +893,16 @@ phiA_entry.configure(selectbackground="#c4c4c4")
 phiA_entry.configure(selectforeground="black")
 
 label_euler = Label (master=root)
-label_euler.place(relx=0.77,rely=0.45,height=19,width=63)
+label_euler.place(relx=0.77,rely=0.42,height=46,width=163)
 label_euler.configure(activebackground="#cccccc")
 label_euler.configure(activeforeground="black")
 label_euler.configure(cursor="fleur")
 label_euler.configure(foreground="black")
 label_euler.configure(highlightcolor="black")
-label_euler.configure(text='''Angle Euler ''')
+label_euler.configure(text='''Euler angles \n A blue , B green''')
 
 phi2A_entry = Entry (master=root)
-phi2A_entry.place(relx=0.7,rely=0.6,relheight=0.03,relwidth=0.07)
+phi2A_entry.place(relx=0.72,rely=0.6,relheight=0.03,relwidth=0.07)
 phi2A_entry.configure(background="white")
 phi2A_entry.configure(foreground="black")
 phi2A_entry.configure(highlightcolor="black")
@@ -905,10 +919,10 @@ button_trace.configure(command=princ)
 button_trace.configure(foreground="black")
 button_trace.configure(highlightcolor="black")
 button_trace.configure(pady="0")
-button_trace.configure(text='''TRACER''')
+button_trace.configure(text='''PLOT''')
 
 Phi1A_label = Label (master=root)
-Phi1A_label.place(relx=0.67,rely=0.5,height=19,width=33)
+Phi1A_label.place(relx=0.67,rely=0.5,height=19,width=50)
 Phi1A_label.configure(activebackground="#cccccc")
 Phi1A_label.configure(activeforeground="black")
 Phi1A_label.configure(foreground="black")
@@ -916,7 +930,7 @@ Phi1A_label.configure(highlightcolor="black")
 Phi1A_label.configure(text='''Phi1A''')
 
 PhiA_label = Label (master=root)
-PhiA_label.place(relx=0.67,rely=0.55,height=19,width=27)
+PhiA_label.place(relx=0.67,rely=0.55,height=19,width=50)
 PhiA_label.configure(activebackground="#cccccc")
 PhiA_label.configure(activeforeground="black")
 PhiA_label.configure(foreground="black")
@@ -924,16 +938,86 @@ PhiA_label.configure(highlightcolor="black")
 PhiA_label.configure(text='''PhiA''')
 
 Phi2A_label = Label (master=root)
-Phi2A_label.place(relx=0.67,rely=0.6,height=19,width=33)
+Phi2A_label.place(relx=0.67,rely=0.6,height=19,width=50)
 Phi2A_label.configure(activebackground="#cccccc")
 Phi2A_label.configure(activeforeground="black")
 Phi2A_label.configure(foreground="black")
 Phi2A_label.configure(highlightcolor="black")
 Phi2A_label.configure(text='''Phi2A''')
 
+phi1B_entry = Entry (master=root)
+phi1B_entry.place(relx=0.86,rely=0.5,relheight=0.03,relwidth=0.07)
+phi1B_entry.configure(background="white")
+
+phi1B_entry.configure(foreground="black")
+phi1B_entry.configure(highlightbackground="#e0e0dfdfe3e3")
+phi1B_entry.configure(highlightcolor="#000000")
+phi1B_entry.configure(insertbackground="#000000")
+phi1B_entry.configure(selectbackground="#c4c4c4")
+phi1B_entry.configure(selectforeground="black")
+
+Phi1B = Label (master=root)
+Phi1B.place(relx=0.81,rely=0.5,height=19,width=50)
+Phi1B.configure(activebackground="#cccccc")
+Phi1B.configure(activeforeground="black")
+Phi1B.configure(foreground="black")
+Phi1B.configure(highlightcolor="black")
+Phi1B.configure(text='''Phi1B''')
+
+PhiB_label1 = Label (master=root)
+PhiB_label1.place(relx=0.81,rely=0.55,height=19,width=50)
+PhiB_label1.configure(activebackground="#cccccc")
+PhiB_label1.configure(activeforeground="black")
+PhiB_label1.configure(foreground="black")
+PhiB_label1.configure(highlightcolor="black")
+PhiB_label1.configure(text='''PhiB''')
+
+Phi2B_label2 = Label (master=root)
+Phi2B_label2.place(relx=0.81,rely=0.6,height=19,width=50)
+Phi2B_label2.configure(activebackground="#cccccc")
+Phi2B_label2.configure(activeforeground="black")
+Phi2B_label2.configure(foreground="black")
+Phi2B_label2.configure(highlightcolor="black")
+Phi2B_label2.configure(text='''Phi2B''')
+
+phiB_entry = Entry (master=root)
+phiB_entry.place(relx=0.86,rely=0.55,relheight=0.03,relwidth=0.07)
+phiB_entry.configure(background="white")
+
+phiB_entry.configure(foreground="black")
+phiB_entry.configure(highlightbackground="#e0e0dfdfe3e3")
+phiB_entry.configure(highlightcolor="#000000")
+phiB_entry.configure(insertbackground="#000000")
+phiB_entry.configure(selectbackground="#c4c4c4")
+phiB_entry.configure(selectforeground="black")
+
+phi2B_entry = Entry (master=root)
+phi2B_entry.place(relx=0.86,rely=0.6,relheight=0.03,relwidth=0.07)
+phi2B_entry.configure(background="white")
+
+phi2B_entry.configure(foreground="black")
+phi2B_entry.configure(highlightbackground="#e0e0dfdfe3e3")
+phi2B_entry.configure(highlightcolor="#000000")
+phi2B_entry.configure(insertbackground="#000000")
+
+phi2B_entry.configure(selectbackground="#c4c4c4")
+phi2B_entry.configure(selectforeground="black")
+
+button_desorientation = Button (master=root)
+button_desorientation.place(relx=0.81,rely=0.66,height=21,width=124)
+
+button_desorientation.configure(activebackground="#f9f9f9")
+button_desorientation.configure(activeforeground="black")
+button_desorientation.configure(background="#00ff00")
+button_desorientation.configure(command=desorientation)
+button_desorientation.configure(foreground="black")
+button_desorientation.configure(highlightcolor="black")
+button_desorientation.configure(pady="0")
+button_desorientation.configure(text='''MISORIENTATION''')
+
 Cristal_label = Label (master=root)
 Cristal_label.place(relx=0.66,rely=0.03,height=19,width=142)
-Cristal_label.configure(text='''Parametres cristallins''')
+Cristal_label.configure(text='''Crystal Parameters''')
 
 a_cristal_label = Label (master=root)
 a_cristal_label.place(relx=0.68,rely=0.06,height=19,width=12)
@@ -956,7 +1040,7 @@ c_cristal_label.configure(highlightcolor="black")
 c_cristal_label.configure(text='''c''')
 
 alp_cristal_label = Label (master=root)
-alp_cristal_label.place(relx=0.67,rely=0.19,height=19,width=32)
+alp_cristal_label.place(relx=0.67,rely=0.18,height=19,width=42)
 alp_cristal_label.configure(activebackground="#f9f9f9")
 alp_cristal_label.configure(activeforeground="black")
 alp_cristal_label.configure(foreground="black")
@@ -964,7 +1048,7 @@ alp_cristal_label.configure(highlightcolor="black")
 alp_cristal_label.configure(text='''alpha''')
 
 bet_cristal_label = Label (master=root)
-bet_cristal_label.place(relx=0.67,rely=0.23,height=19,width=28)
+bet_cristal_label.place(relx=0.67,rely=0.22,height=19,width=42)
 bet_cristal_label.configure(activebackground="#f9f9f9")
 bet_cristal_label.configure(activeforeground="black")
 bet_cristal_label.configure(foreground="black")
@@ -972,7 +1056,7 @@ bet_cristal_label.configure(highlightcolor="black")
 bet_cristal_label.configure(text='''beta''')
 
 gam_cristal_label = Label (master=root)
-gam_cristal_label.place(relx=0.66,rely=0.26,height=19,width=40)
+gam_cristal_label.place(relx=0.66,rely=0.26,height=19,width=52)
 gam_cristal_label.configure(activebackground="#f9f9f9")
 gam_cristal_label.configure(activeforeground="black")
 gam_cristal_label.configure(foreground="black")
@@ -1003,7 +1087,7 @@ c_entry.configure(selectbackground="#c4c4c4")
 c_entry.configure(selectforeground="black")
 
 alp_entry = Entry (master=root)
-alp_entry.place(relx=0.7,rely=0.18,relheight=0.03,relwidth=0.06)
+alp_entry.place(relx=0.71,rely=0.18,relheight=0.03,relwidth=0.06)
 alp_entry.configure(background="white")
 alp_entry.configure(foreground="black")
 alp_entry.configure(highlightcolor="black")
@@ -1012,7 +1096,7 @@ alp_entry.configure(selectbackground="#c4c4c4")
 alp_entry.configure(selectforeground="black")
 
 bet_entry = Entry (master=root)
-bet_entry.place(relx=0.7,rely=0.23,relheight=0.03,relwidth=0.06)
+bet_entry.place(relx=0.71,rely=0.22,relheight=0.03,relwidth=0.06)
 bet_entry.configure(background="white")
 bet_entry.configure(foreground="black")
 bet_entry.configure(highlightcolor="black")
@@ -1021,7 +1105,7 @@ bet_entry.configure(selectbackground="#c4c4c4")
 bet_entry.configure(selectforeground="black")
 
 gam_entry = Entry (master=root)
-gam_entry.place(relx=0.7,rely=0.26,relheight=0.03,relwidth=0.06)
+gam_entry.place(relx=0.71,rely=0.26,relheight=0.03,relwidth=0.06)
 gam_entry.configure(background="white")
 gam_entry.configure(foreground="black")
 gam_entry.configure(highlightcolor="black")
@@ -1035,11 +1119,11 @@ uvw_button.configure(text='''uvw''')
 uvw_button.configure(variable=var_uvw)
 
 e_label = Label (master=root)
-e_label.place(relx=0.66,rely=0.31,height=19,width=56)
-e_label.configure(text='''indice max''')
+e_label.place(relx=0.66,rely=0.31,height=19,width=86)
+e_label.configure(text='''Max indices''')
 
 e_entry = Entry (master=root)
-e_entry.place(relx=0.72,rely=0.31,relheight=0.03,relwidth=0.05)
+e_entry.place(relx=0.74,rely=0.31,relheight=0.03,relwidth=0.05)
 e_entry.configure(background="white")
 e_entry.configure(insertbackground="black")
 
@@ -1088,7 +1172,7 @@ label_addpoleA.configure(activebackground="#cccccc")
 label_addpoleA.configure(activeforeground="black")
 label_addpoleA.configure(foreground="black")
 label_addpoleA.configure(highlightcolor="black")
-label_addpoleA.configure(text='''Ajouter un pole A''')
+label_addpoleA.configure(text='''Add pole A''')
 
 pole1A_entry = Entry (master=root)
 pole1A_entry.place(relx=0.81,rely=0.06,relheight=0.02
@@ -1128,76 +1212,19 @@ addpoleA_button.configure(command=addpoleA)
 addpoleA_button.configure(foreground="black")
 addpoleA_button.configure(highlightcolor="black")
 addpoleA_button.configure(pady="0")
-addpoleA_button.configure(text='''Ajouter''')
+addpoleA_button.configure(text='''Add''')
 
 symA_button = Button (master=root)
 symA_button.place(relx=0.87,rely=0.11,height=31,width=71)
 symA_button.configure(command=addpoleA_sym)
 symA_button.configure(pady="0")
-symA_button.configure(text='''Symetrie''')
+symA_button.configure(text='''Symetry''')
 
 trace_planA_button = Button (master=root)
-trace_planA_button.place(relx=0.93,rely=0.11,height=31,width=61)
+trace_planA_button.place(relx=0.93,rely=0.11,height=31,width=81)
 trace_planA_button.configure(command=trace_planA)
 trace_planA_button.configure(pady="0")
-trace_planA_button.configure(text='''Trace plan''')
-
-phi1B_entry = Entry (master=root)
-phi1B_entry.place(relx=0.84,rely=0.5,relheight=0.03,relwidth=0.07)
-phi1B_entry.configure(background="white")
-
-phi1B_entry.configure(foreground="black")
-phi1B_entry.configure(highlightbackground="#e0e0dfdfe3e3")
-phi1B_entry.configure(highlightcolor="#000000")
-phi1B_entry.configure(insertbackground="#000000")
-phi1B_entry.configure(selectbackground="#c4c4c4")
-phi1B_entry.configure(selectforeground="black")
-
-Phi1B = Label (master=root)
-Phi1B.place(relx=0.8,rely=0.5,height=29,width=33)
-Phi1B.configure(activebackground="#cccccc")
-Phi1B.configure(activeforeground="black")
-Phi1B.configure(foreground="black")
-Phi1B.configure(highlightcolor="black")
-Phi1B.configure(text='''Phi1B''')
-
-PhiB_label1 = Label (master=root)
-PhiB_label1.place(relx=0.81,rely=0.55,height=19,width=26)
-PhiB_label1.configure(activebackground="#cccccc")
-PhiB_label1.configure(activeforeground="black")
-PhiB_label1.configure(foreground="black")
-PhiB_label1.configure(highlightcolor="black")
-PhiB_label1.configure(text='''PhiB''')
-
-Phi2B_label2 = Label (master=root)
-Phi2B_label2.place(relx=0.8,rely=0.6,height=19,width=32)
-Phi2B_label2.configure(activebackground="#cccccc")
-Phi2B_label2.configure(activeforeground="black")
-Phi2B_label2.configure(foreground="black")
-Phi2B_label2.configure(highlightcolor="black")
-Phi2B_label2.configure(text='''Phi2B''')
-
-phiB_entry = Entry (master=root)
-phiB_entry.place(relx=0.84,rely=0.55,relheight=0.03,relwidth=0.07)
-phiB_entry.configure(background="white")
-
-phiB_entry.configure(foreground="black")
-phiB_entry.configure(highlightbackground="#e0e0dfdfe3e3")
-phiB_entry.configure(highlightcolor="#000000")
-phiB_entry.configure(insertbackground="#000000")
-phiB_entry.configure(selectbackground="#c4c4c4")
-phiB_entry.configure(selectforeground="black")
-
-phi2B_entry = Entry (master=root)
-phi2B_entry.place(relx=0.84,rely=0.6,relheight=0.03,relwidth=0.07)
-phi2B_entry.configure(background="white")
-
-phi2B_entry.configure(foreground="black")
-phi2B_entry.configure(highlightbackground="#e0e0dfdfe3e3")
-phi2B_entry.configure(highlightcolor="#000000")
-phi2B_entry.configure(insertbackground="#000000")
-phi2B_entry.configure(selectbackground="#c4c4c4")
-phi2B_entry.configure(selectforeground="black")
+trace_planA_button.configure(text='''Draw plane''')
 
 label_addpoleB = Label (master=root)
 label_addpoleB.place(relx=0.81,rely=0.2,height=19,width=90)
@@ -1205,7 +1232,7 @@ label_addpoleB.configure(activebackground="#cccccc")
 label_addpoleB.configure(activeforeground="black")
 label_addpoleB.configure(foreground="black")
 label_addpoleB.configure(highlightcolor="black")
-label_addpoleB.configure(text='''Ajouter un pole B''')
+label_addpoleB.configure(text='''Add pole B''')
 
 pole1B_entry = Entry (master=root)
 pole1B_entry.place(relx=0.81,rely=0.24,relheight=0.02
@@ -1245,63 +1272,52 @@ addpoleB_button.configure(command=addpoleB)
 addpoleB_button.configure(foreground="black")
 addpoleB_button.configure(highlightcolor="black")
 addpoleB_button.configure(pady="0")
-addpoleB_button.configure(text='''Ajouter''')
+addpoleB_button.configure(text='''Add''')
 
 symB_button = Button (master=root)
-symB_button.place(relx=0.87,rely=0.28,height=31,width=61)
+symB_button.place(relx=0.87,rely=0.28,height=31,width=71)
 symB_button.configure(command=addpoleB_sym)
 symB_button.configure(pady="0")
-symB_button.configure(text='''Symetrie''')
+symB_button.configure(text='''Symetry''')
 
 trace_planB_button = Button (master=root)
-trace_planB_button.place(relx=0.93,rely=0.28,height=31,width=59)
+trace_planB_button.place(relx=0.93,rely=0.28,height=31,width=81)
 trace_planB_button.configure(command=trace_planB)
 trace_planB_button.configure(pady="0")
-trace_planB_button.configure(text='''Trace plan''')
+trace_planB_button.configure(text='''Draw plane''')
 
-button_desorientation = Button (master=root)
-button_desorientation.place(relx=0.81,rely=0.66,height=21,width=98)
-
-button_desorientation.configure(activebackground="#f9f9f9")
-button_desorientation.configure(activeforeground="black")
-button_desorientation.configure(background="#00ff00")
-button_desorientation.configure(command=desorientation)
-button_desorientation.configure(foreground="black")
-button_desorientation.configure(highlightcolor="black")
-button_desorientation.configure(pady="0")
-button_desorientation.configure(text='''DESORIENTATION''')
 
 show_ind_button = Checkbutton (master=root)
 show_ind_button.place(relx=0.81,rely=0.7,relheight=0.03
                 ,relwidth=0.11)
-show_ind_button.configure(text='''Montrer indices''')
+show_ind_button.configure(text='''Show indices''')
 show_ind_button.configure(variable=show_ind)
 
 show_angle_button = Checkbutton (master=root)
 show_angle_button.place(relx=0.81,rely=0.74,relheight=0.03
                 ,relwidth=0.11)
-show_angle_button.configure(text='''Montrer angle''')
+show_angle_button.configure(text='''Show angle''')
 show_angle_button.configure(variable=show_angle)
 
 show_axe_button = Checkbutton (master=root)
 show_axe_button.place(relx=0.81,rely=0.78,relheight=0.03
                 ,relwidth=0.11)
-show_axe_button.configure(text='''Montrer axes''')
+show_axe_button.configure(text='''Show axes''')
 show_axe_button.configure(variable=show_axe)
 
 show_num_button = Checkbutton (master=root)
 show_num_button.place(relx=0.81,rely=0.82,relheight=0.03
                 ,relwidth=0.11)
-show_num_button.configure(text='''Montrer Numero''')
+show_num_button.configure(text='''Show numbers''')
 show_num_button.configure(variable=show_num)
 
 menu = Menu(master=root)
 filemenu = Menu(menu, tearoff=0)
-menu.add_cascade(label="Sauver", menu=filemenu)
+menu.add_cascade(label="Save", menu=filemenu)
 
 root.config(menu=menu)
-filemenu.add_command(label="Sauver donnees", command=file_save) 
-filemenu.add_command(label="Sauver figure", command=image_save) 
+filemenu.add_command(label="Save data", command=file_save) 
+filemenu.add_command(label="Save figure", command=image_save) 
 ######################################################################################################
 ######## importer des structures cristallines depuis un fichier Nom,a,b,c,alpha,beta,gamma,space group
 ######################################################################################################
