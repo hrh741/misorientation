@@ -18,7 +18,7 @@
     <item row="0" column="0">
      <widget class="QTabWidget" name="tabWidget">
       <property name="currentIndex">
-       <number>0</number>
+       <number>2</number>
       </property>
       <widget class="QWidget" name="settings">
        <attribute name="title">
@@ -730,6 +730,44 @@
         </item>
         <item row="0" column="0">
          <layout class="QGridLayout" name="mplvl"/>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="misorientation">
+       <attribute name="title">
+        <string>misorientation</string>
+       </attribute>
+       <layout class="QGridLayout" name="gridLayout_13">
+        <item row="0" column="0">
+         <widget class="QPushButton" name="misorientation_button">
+          <property name="text">
+           <string>Find misorientation &amp; Plot Angle/Axes</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="0">
+         <widget class="QCheckBox" name="numbers_checkBox">
+          <property name="text">
+           <string>show numbers</string>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="0">
+         <widget class="QCheckBox" name="axis_checkBox">
+          <property name="text">
+           <string>show axes</string>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="0">
+         <widget class="QListWidget" name="misorientation_list"/>
+        </item>
+        <item row="1" column="0">
+         <widget class="QPushButton" name="clear_misorientation_button">
+          <property name="text">
+           <string>Clear plot</string>
+          </property>
+         </widget>
         </item>
        </layout>
       </widget>

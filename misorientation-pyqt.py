@@ -23,6 +23,7 @@ from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qt4agg import NavigationToolbar2QT as NavigationToolbar
 from matplotlib import pyplot as plt
 import matplotlib as mpl
+from fractions import Fraction
 import misorientationUI
 
                  
@@ -352,6 +353,32 @@ def dp2():
 # or  tilt-rotation holder  (rotation of alpha along fixed # x and rotation of z along the z-rotation moving axis).
 #
 ##########################################################################
+def euler_label():
+	global M,M2
+	if np.abs(M[2,2]-1)<0.0001:
+		phir=0
+		phi1r=0
+		phi2r=np.arctan2(M[1,0],M[0,0])*180/np.pi
+	else:
+		phir=np.arccos(M[2,2])*180/np.pi
+		phi2r=np.arctan2(M[2,0],M[2,1])*180/np.pi
+		phi1r=np.arctan2(M[0,2],-M[1,2])*180/np.pi
+	    
+        if np.abs(M2[2,2]-1)<0.0001:
+		phir_2=0
+		phi1r_2=0
+		phi2r_2=np.arctan2(M2[1,0],M2[0,0])*180/np.pi
+	else:
+		phir_2=np.arccos(M2[2,2])*180/np.pi
+		phi2r_2=np.arctan2(M2[2,0],M2[2,1])*180/np.pi
+		phi1r_2=np.arctan2(M2[0,2],-M2[1,2])*180/np.pi
+    
+        t=str(np.around(phi1r,decimals=1))+str(',')+str(np.around(phir,decimals=1))+str(',')+str(np.around(phi2r,decimals=1))
+        t2=str(np.around(phi1r_2,decimals=1))+str(',')+str(np.around(phir_2,decimals=1))+str(',')+str(np.around(phi2r_2,decimals=1))
+    
+        ui.angle_euler_label.setText(t)
+        ui.angle_euler_label_2.setText(t2)
+
 
 def lock():
 	global M, var_lock,M_lock
@@ -380,23 +407,11 @@ def rot_alpha_p():
     else:
     	    M2=np.dot(Rot(tha,t_a_y[0],t_a_y[1],t_a_y[2]),M2)	
     trace()
-    phir=np.arccos(M[2,2])*180/np.pi
-    phi2r=np.arctan2(M[2,0],M[2,1])*180/np.pi
-    phi1r=np.arctan2(M[0,2],-M[1,2])*180/np.pi
-    
-    phir_2=np.arccos(M2[2,2])*180/np.pi
-    phi2r_2=np.arctan2(M2[2,0],M2[2,1])*180/np.pi
-    phi1r_2=np.arctan2(M2[0,2],-M2[1,2])*180/np.pi
-    
-    t=str(np.around(phi1r,decimals=1))+str(',')+str(np.around(phir,decimals=1))+str(',')+str(np.around(phi2r,decimals=1))
-    t2=str(np.around(phi1r_2,decimals=1))+str(',')+str(np.around(phir_2,decimals=1))+str(',')+str(np.around(phi2r_2,decimals=1))
-    
-    ui.angle_euler_label.setText(t)
-    ui.angle_euler_label_2.setText(t2)
+    euler_label()
 
     angle_alpha=angle_alpha+np.float(ui.angle_alpha_entry.text())
     ui.angle_alpha_label_2.setText(str(angle_alpha))
-    return angle_alpha,M,M2
+
     
     
 def rot_alpha_m():
@@ -409,22 +424,10 @@ def rot_alpha_m():
     else:
     	    M2=np.dot(Rot(tha,t_a_y[0],t_a_y[1],t_a_y[2]),M2)	
     trace()
-    phir=np.arccos(M[2,2])*180/np.pi
-    phi2r=np.arctan2(M[2,0],M[2,1])*180/np.pi
-    phi1r=np.arctan2(M[0,2],-M[1,2])*180/np.pi
-    
-    phir_2=np.arccos(M2[2,2])*180/np.pi
-    phi2r_2=np.arctan2(M2[2,0],M2[2,1])*180/np.pi
-    phi1r_2=np.arctan2(M2[0,2],-M2[1,2])*180/np.pi
-    
-    t=str(np.around(phi1r,decimals=1))+str(',')+str(np.around(phir,decimals=1))+str(',')+str(np.around(phi2r,decimals=1))
-    t2=str(np.around(phi1r_2,decimals=1))+str(',')+str(np.around(phir_2,decimals=1))+str(',')+str(np.around(phi2r_2,decimals=1))
-    
-    ui.angle_euler_label.setText(t)
-    ui.angle_euler_label_2.setText(t2)
+    euler_label()
     angle_alpha=angle_alpha-np.float(ui.angle_alpha_entry.text())
     ui.angle_alpha_label_2.setText(str(angle_alpha))
-    return angle_alpha,M,M2
+
 
     
 def rot_beta_m():
@@ -447,22 +450,10 @@ def rot_beta_m():
     else:
     	    M2=np.dot(Rot(thb,AxeY[0],AxeY[1],AxeY[2]),M2)	
     trace()
-    phir=np.arccos(M[2,2])*180/np.pi
-    phi2r=np.arctan2(M[2,0],M[2,1])*180/np.pi
-    phi1r=np.arctan2(M[0,2],-M[1,2])*180/np.pi
-    
-    phir_2=np.arccos(M2[2,2])*180/np.pi
-    phi2r_2=np.arctan2(M2[2,0],M2[2,1])*180/np.pi
-    phi1r_2=np.arctan2(M2[0,2],-M2[1,2])*180/np.pi
-    
-    t=str(np.around(phi1r,decimals=1))+str(',')+str(np.around(phir,decimals=1))+str(',')+str(np.around(phi2r,decimals=1))
-    t2=str(np.around(phi1r_2,decimals=1))+str(',')+str(np.around(phir_2,decimals=1))+str(',')+str(np.around(phi2r_2,decimals=1))
-    
-    ui.angle_euler_label.setText(t)
-    ui.angle_euler_label_2.setText(t2)
+    euler_label()
     angle_beta=angle_beta-np.float(ui.angle_beta_entry.text())
     ui.angle_beta_label_2.setText(str(angle_beta))
-    return angle_beta,M   
+
    
 def rot_beta_p():
     global angle_beta,M,M2, angle_alpha, angle_z, var_lock, M_lock,s_b,t_ang
@@ -483,22 +474,10 @@ def rot_beta_p():
     else:
     	    M2=np.dot(Rot(thb,AxeY[0],AxeY[1],AxeY[2]),M2)	
     trace()
-    phir=np.arccos(M[2,2])*180/np.pi
-    phi2r=np.arctan2(M[2,0],M[2,1])*180/np.pi
-    phi1r=np.arctan2(M[0,2],-M[1,2])*180/np.pi
-    
-    phir_2=np.arccos(M2[2,2])*180/np.pi
-    phi2r_2=np.arctan2(M2[2,0],M2[2,1])*180/np.pi
-    phi1r_2=np.arctan2(M2[0,2],-M2[1,2])*180/np.pi
-    
-    t=str(np.around(phi1r,decimals=1))+str(',')+str(np.around(phir,decimals=1))+str(',')+str(np.around(phi2r,decimals=1))
-    t2=str(np.around(phi1r_2,decimals=1))+str(',')+str(np.around(phir_2,decimals=1))+str(',')+str(np.around(phi2r_2,decimals=1))
-    
-    ui.angle_euler_label.setText(t)
-    ui.angle_euler_label_2.setText(t2)
+    euler_label()
     angle_beta=angle_beta+np.float(ui.angle_beta_entry.text())
     ui.angle_beta_label_2.setText(str(angle_beta))
-    return angle_beta,M;M2   
+
 
 def rot_z_m():
     global angle_beta,M,M2,angle_alpha, angle_z, var_lock, M_lock,s_z
@@ -520,22 +499,10 @@ def rot_z_m():
     else:
     	    M2=np.dot(Rot(thz,AxeZ[0],AxeZ[1],AxeZ[2]),M2)	
     trace()
-    phir=np.arccos(M[2,2])*180/np.pi
-    phi2r=np.arctan2(M[2,0],M[2,1])*180/np.pi
-    phi1r=np.arctan2(M[0,2],-M[1,2])*180/np.pi
-    
-    phir_2=np.arccos(M2[2,2])*180/np.pi
-    phi2r_2=np.arctan2(M2[2,0],M2[2,1])*180/np.pi
-    phi1r_2=np.arctan2(M2[0,2],-M2[1,2])*180/np.pi
-    
-    t=str(np.around(phi1r,decimals=1))+str(',')+str(np.around(phir,decimals=1))+str(',')+str(np.around(phi2r,decimals=1))
-    t2=str(np.around(phi1r_2,decimals=1))+str(',')+str(np.around(phir_2,decimals=1))+str(',')+str(np.around(phi2r_2,decimals=1))
-    
-    ui.angle_euler_label.setText(t)
-    ui.angle_euler_label_2.setText(t2)
+    euler_label()
     angle_z=angle_z-np.float(ui.angle_z_entry.text())
     ui.angle_z_label_2.setText(str(angle_z))
-    return angle_z,M,M2      
+   
    
 def rot_z_p():
     global angle_beta,M,M2,angle_alpha, angle_z, var_lock, M_lock,s_z
@@ -556,22 +523,11 @@ def rot_z_p():
     else:
     	    M2=np.dot(Rot(thz,AxeZ[0],AxeZ[1],AxeZ[2]),M2)	
     trace()
-    phir=np.arccos(M[2,2])*180/np.pi
-    phi2r=np.arctan2(M[2,0],M[2,1])*180/np.pi
-    phi1r=np.arctan2(M[0,2],-M[1,2])*180/np.pi
-    
-    phir_2=np.arccos(M2[2,2])*180/np.pi
-    phi2r_2=np.arctan2(M2[2,0],M2[2,1])*180/np.pi
-    phi1r_2=np.arctan2(M2[0,2],-M2[1,2])*180/np.pi
-    
-    t=str(np.around(phi1r,decimals=1))+str(',')+str(np.around(phir,decimals=1))+str(',')+str(np.around(phi2r,decimals=1))
-    t2=str(np.around(phi1r_2,decimals=1))+str(',')+str(np.around(phir_2,decimals=1))+str(',')+str(np.around(phi2r_2,decimals=1))
-    
-    ui.angle_euler_label.setText(t)
-    ui.angle_euler_label_2.setText(t2)
+    euler_label()
+   
     angle_z=angle_z+np.float(ui.angle_z_entry.text())
     ui.angle_z_label_2.setText(str(angle_z))
-    return angle_z,M      
+    
 
 ####################################################################
 #
@@ -598,19 +554,7 @@ def rotgm():
     	    M2=np.dot(Rot(thg,Ap[0],Ap[1],Ap[2]),M2)
    
     trace()    
-    phir=np.arccos(M[2,2])*180/np.pi
-    phi2r=np.arctan2(M[2,0],M[2,1])*180/np.pi
-    phi1r=np.arctan2(M[0,2],-M[1,2])*180/np.pi
-    
-    phir_2=np.arccos(M2[2,2])*180/np.pi
-    phi2r_2=np.arctan2(M2[2,0],M2[2,1])*180/np.pi
-    phi1r_2=np.arctan2(M2[0,2],-M2[1,2])*180/np.pi
-    
-    t=str(np.around(phi1r,decimals=1))+str(',')+str(np.around(phir,decimals=1))+str(',')+str(np.around(phi2r,decimals=1))
-    t2=str(np.around(phi1r_2,decimals=1))+str(',')+str(np.around(phir_2,decimals=1))+str(',')+str(np.around(phi2r_2,decimals=1))
-    
-    ui.angle_euler_label.setText(t)
-    ui.angle_euler_label_2.setText(t2)
+    euler_label()
     g=g-np.float(ui.rot_g_entry.text())
     ui.rg_label.setText(str(g))
     return g,M,M2
@@ -632,19 +576,7 @@ def rotgp():
 	    Ap=np.dot(M2,Ad)/np.linalg.norm(np.dot(M2,Ad))
     	    M2=np.dot(Rot(thg,Ap[0],Ap[1],Ap[2]),M2)
     trace()    
-    phir=np.arccos(M[2,2])*180/np.pi
-    phi2r=np.arctan2(M[2,0],M[2,1])*180/np.pi
-    phi1r=np.arctan2(M[0,2],-M[1,2])*180/np.pi
-    
-    phir_2=np.arccos(M2[2,2])*180/np.pi
-    phi2r_2=np.arctan2(M2[2,0],M2[2,1])*180/np.pi
-    phi1r_2=np.arctan2(M2[0,2],-M2[1,2])*180/np.pi
-    
-    t=str(np.around(phi1r,decimals=1))+str(',')+str(np.around(phir,decimals=1))+str(',')+str(np.around(phi2r,decimals=1))
-    t2=str(np.around(phi1r_2,decimals=1))+str(',')+str(np.around(phir_2,decimals=1))+str(',')+str(np.around(phi2r_2,decimals=1))
-    
-    ui.angle_euler_label.setText(t)
-    ui.angle_euler_label_2.setText(t2)
+    euler_label()
     g=g+np.float(ui.rot_g_entry.text())
     ui.rg_label.setText(str(g))
     return g,M
@@ -1382,7 +1314,7 @@ def crystal_check():
 ####################################################################
 
 def trace():
-    global T,x,y,z,axes,axesh,M,M2,trP,a,trC,s_a,s_b,s_z
+    global T,x,y,z,axes,axesh,M,M2,trP,a,trC,s_a,s_b,s_z,Qp,D1,D0,S
     minx,maxx=a.get_xlim()
     miny,maxy=a.get_ylim()
     a = figure.add_subplot(111) 
@@ -1417,6 +1349,7 @@ def trace():
     
     s0=1
     a.scatter(P[:,0]+300,P[:,1]+300,edgecolors=C,s=s0*np.float(ui.size_var.text()),facecolors=O, linewidth=1.5)
+    trace_misorientation(Qp)
     a.axis([minx,maxx,miny,maxy])
     wulff()
     
@@ -1428,10 +1361,11 @@ def trace():
 ##################################################"
 
 def princ2():
-    global T,angle_alpha,angle_beta,angle_z,M,M2,Dstar,D,g,M0,trP,a,axeshr,minx,maxx,miny,maxy,trC,Stc,dmip,tr_schmid,s_a,s_b,s_c,axes,axesh,D,Dstar,V,G
+    global T,angle_alpha,angle_beta,angle_z,M,M2,Dstar,D,g,M0,trP,a,axeshr,minx,maxx,miny,maxy,trC,Stc,dmip,tr_schmid,s_a,s_b,s_c,axes,axesh,D,Dstar,V,G,Qp
     
     trP=np.zeros((1,6))
     Stc=np.zeros((1,3))
+    Qp=np.zeros((1,2))
     a = figure.add_subplot(111)
     a.figure.clear()
     a = figure.add_subplot(111)
@@ -1498,12 +1432,281 @@ def princ2():
     M=rotation(phi1,phi,phi2)
     M2=rotation(phi1_2,phi_2,phi2_2)
     t=str(np.around(phi1,decimals=1))+str(',')+str(np.around(phi,decimals=1))+str(',')+str(np.around(phi2,decimals=1))
+    t2=str(np.around(phi1_2,decimals=1))+str(',')+str(np.around(phi_2,decimals=1))+str(',')+str(np.around(phi2_2,decimals=1))
     ui.angle_euler_label.setText(t)
+    ui.angle_euler_label_2.setText(t2)
     
     return T,angle_alpha,angle_beta,angle_z,g,M,M2
 
+#####################################
+#
+# Misorientation
+#
+#####################################  
+def check_gb():
+	abc2=ui.abc_entry_2.text().split(",")
+    	alphabetagamma2=ui.alphabetagamma_entry_2.text().split(",")
+        abc=ui.abc_entry.text().split(",")
+    	alphabetagamma=ui.alphabetagamma_entry.text().split(",")
+        if abc==abc2 and alphabetagamma==alphabetagamma2:
+        	gb=1
+        else:
+        	gb=2
+        return gb
+
+def Rota(t,u,v,w,g):
+    Ae=np.dot(g,np.array([u,v,w]))
+    Re=Rot(t,Ae[0],Ae[1],Ae[2])
+    return Re
+        
+def cryststruct():
+    global cs
+    gb=check_gb()
+    if gb==1:
+    	abc=ui.abc_entry.text().split(",")
+    	alphabetagamma=ui.alphabetagamma_entry.text().split(",")
+    else:
+    	return
+    a=np.float(abc[0])*1e-10
+    b=np.float(abc[1])*1e-10
+    c=np.float(abc[2])*1e-10
+    alp=np.float(alphabetagamma[0])
+    bet=np.float(alphabetagamma[1])
+    gam=np.float(alphabetagamma[2])
+       
+    if  gam==90 and alp==90 and bet==90 and a==b and b==c:
+       cs=1
+
+    if gam==120 and alp==90 and bet==90:
+        cs=2
+
+    if gam==90 and alp==90 and bet==90 and a==b and b<>c: 
+        cs=3  
+
+    if alp<>90 and a==b and b==c:
+        cs=4  
+
+    if gam==90 and alp==90 and bet==90 and a<>b and b<>c:
+        cs=5  
+    
+    if gam<>90 and alp==90 and bet==90 and a<>b and b<>c:
+        cs=6  
+
+    if gam<>90 and alp<>90 and bet<>90 and a<>b and b<>c: 
+        cs=7  
+    return cs
+    
+def Sy(g):
+    global cs
+    if cs==1:
+        S1=Rota(90,1,0,0,g);
+        S2=Rota(180,1,0,0,g);
+        S3=Rota(270,1,0,0,g);
+        S4=Rota(90,0,1,0,g);
+        S5=Rota(180,0,1,0,g);
+        S6=Rota(270,0,1,0,g);
+        S7=Rota(90,0,0,1,g);
+        S8=Rota(180,0,0,1,g);
+        S9=Rota(270,0,0,1,g);
+        S10=Rota(180,1,1,0,g);
+        S11=Rota(180,1,0,1,g);
+        
+        S12=Rota(180,0,1,1,g);
+        S13=Rota(180,-1,1,0,g);
+        S14=Rota(180,-1,0,1,g);
+        S15=Rota(180,0,-1,1,g);
+        S16=Rota(120,1,1,1,g);
+        S17=Rota(240,1,1,1,g);
+        S18=Rota(120,-1,1,1,g);
+        S19=Rota(240,-1,1,1,g);
+        S20=Rota(120,1,-1,1,g);
+        S21=Rota(240,1,-1,1,g);
+        S22=Rota(120,1,1,-1,g);
+        S23=Rota(240,1,1,-1,g);
+        S24=np.eye(3,3);
+        S=np.vstack((S1,S2,S3,S4,S5,S6,S7,S8,S9,S10,S11,S12,S13,S14,S15,S16,S17,S18,S19,S20,S21,S22,S23,S24))
+        
   
-  
+    
+    if cs==2:
+        S1=Rota(60,0,0,1,g);
+        S2=Rota(120,0,0,1,g);
+        S3=Rota(180,0,0,1,g);
+        S4=Rota(240,0,0,1,g);
+        S5=Rota(300,0,0,1,g);
+        S6=np.eye(3,3);
+        S7=Rota(180,0,0,1,g);
+        S8=Rota(180,0,1,0,g);
+        S9=Rota(180,1/2,np.sqrt(3)/2,0,g);
+        S10=Rota(180,-1/2,np.sqrt(3)/2,0,g);
+        S11=Rota(180,np.sqrt(3)/2,1/2,0,g);
+        S12=Rota(180,-np.sqrt(3)/2,1/2,0,g);
+        S=np.vstack((S1,S2,S3,S4,S5,S6,S7,S8,S9,S10,S11,S12))
+        
+       
+        
+    if cs==3:
+        S1=Rota(90,0,0,1,g);
+        S2=Rota(180,0,0,1,g);
+        S3=Rota(270,0,0,1,g);
+        S4=Rota(180,0,1,0,g);
+        S5=Rota(180,1,0,0,g);
+        S6=Rota(180,1,1,0,g);
+        S7=Rota(180,1,-1,0,g);
+        S8=np.eye(3,3)
+        S=np.vstack((S1,S2,S3,S4,S5,S6,S7,S8))
+        
+        
+      
+        
+    if cs==4:
+        S1=Rota(60,0,0,1,g);
+        S2=Rota(120,0,0,1,g);
+        S3=Rota(180,0,0,1,g);
+        S4=Rota(240,0,0,1,g);
+        S5=Rota(300,0,0,1,g);
+        S6=np.eye(3,3);
+        S7=Rota(180,0,0,1,g);
+        S8=Rota(180,0,1,0,g);
+        S9=Rota(180,1/2,np.sqrt(3)/2,0,g);
+        S10=Rota(180,-1/2,np.sqrt(3)/2,0,g);
+        S11=Rota(180,np.sqrt(3)/2,1/2,0,g);
+        S12=Rota(180,-np.sqrt(3)/2,1/2,0,g);
+        S=np.vstack((S1,S2,S3,S4,S5,S6,S7,S8,S9,S10,S11,S12))
+        
+    
+              
+         
+    if cs==5:
+        S1=Rota(180,0,0,1,g);
+        S2=Rota(180,1,0,0,g);
+        S3=Rota(180,0,1,0,g);
+        S4=np.eye(3,3);
+        S=np.vstack((S1,S2,S3,S4))
+        
+                
+        
+    if cs==6:
+        S1=Rota(180,0,1,0,g);
+        S2=np.eye(3,3);
+        S=np.vstack((S1,S2))
+        
+ 
+        
+    if cs==7:
+        S=np.eye(3,3);
+        
+    
+    return S
+    
+def null(A, rcond=None):
+
+    u, s, vh = np.linalg.svd(A, full_matrices=True)
+    M, N = u.shape[0], vh.shape[1]
+    if rcond is None:
+        rcond = np.finfo(s.dtype).eps * max(M, N)
+    tol = np.amax(s) * rcond
+    num = np.sum(s > tol, dtype=int)
+    Q = vh[num:,:].T.conj()
+    return Q
+
+def desorientation():
+    global cs,Qp,M,M2,D1,D0,S
+
+    cryststruct()
+    gA=M
+    gB=M2
+    if np.abs(M2[2,2]-1)<0.0001:
+		phi_2=0
+		phi1_2=0
+		phi2_2=np.arctan2(M2[1,0],M2[0,0])*180/np.pi
+    else:
+		phi_2=np.arccos(M2[2,2])*180/np.pi
+		phi2_2=np.arctan2(M2[2,0],M2[2,1])*180/np.pi
+		phi1_2=np.arctan2(M2[0,2],-M2[1,2])*180/np.pi
+    k=0
+    S=Sy(gA)
+    
+    D0=np.zeros((int(np.shape(S)[0]/3),5))
+    D1=np.zeros((int(np.shape(S)[0]/3),3))
+    Qp=np.zeros((int(np.shape(S)[0]/3),2))
+    for i in range(0,np.shape(S)[0],3):
+        In=np.dot(np.array([[S[i,0],S[i+1,0],S[i+2,0]],[S[i,1],S[i+1,1],S[i+2,1]],[S[i,2],S[i+1,2],S[i+2,2]]]),gA)
+        Ing=np.dot(In,np.array([0,0,1]))
+        In2=np.dot(Rot(-phi2_2,Ing[0],Ing[1],Ing[2]),In)
+        Ing2=np.dot(In2,np.array([1,0,0]))
+        In3=np.dot(Rot(-phi_2,Ing2[0],Ing2[1],Ing2[2]),In2)
+        Ing3=np.dot(In3,np.array([0,0,1]))
+        A=np.dot(Rot(-phi1_2,Ing3[0],Ing3[1],Ing3[2]),In3)-np.eye(3)
+        V=null(A,0.001).T
+        
+        if 0.5*(np.trace(A+np.eye(3))-1)>1:
+        	D0[k,3]=0
+        elif 0.5*(np.trace(A+np.eye(3))-1)<-1:
+        	D0[k,3]=180
+        else:
+        	D0[k,3]=np.arccos(0.5*(np.trace(A+np.eye(3))-1))*180/np.pi
+        	
+        if np.abs(D0[k,3])<1e-5:
+        	D0[k,0]=0
+        	D0[k,1]=0
+        	D0[k,2]=0
+        else:
+		D0[k,0]=V[0,0]/np.linalg.norm(V)
+		D0[k,1]=V[0,1]/np.linalg.norm(V)
+		D0[k,2]=V[0,2]/np.linalg.norm(V)
+
+        Ds1=np.dot(np.linalg.inv(gB),np.array([D0[k,0],D0[k,1],D0[k,2]]))
+    
+        F0=Fraction(Ds1[0]).limit_denominator(10)
+        F1=Fraction(Ds1[1]).limit_denominator(10)
+        F2=Fraction(Ds1[2]).limit_denominator(10)
+                    
+        D1[k,0]=F0.numerator*F1.denominator*F2.denominator
+        D1[k,1]=F1.numerator*F0.denominator*F2.denominator
+        D1[k,2]=F2.numerator*F0.denominator*F1.denominator
+           
+        
+        if D0[k,2]<0:
+           D0[k,0]=-D0[k,0]
+           D0[k,1]=-D0[k,1]
+           D0[k,2]=-D0[k,2]
+           D1[k,0]=-D1[k,0]
+           D1[k,1]=-D1[k,1]
+           D1[k,2]=-D1[k,2]
+
+        D0[k,4]=k
+        Qp[k,:]=proj(D0[k,0],D0[k,1],D0[k,2])*300
+
+        k=k+1
+    
+    trace()
+    
+
+def trace_misorientation(B):
+	global Qp,D1,D0
+	ui.misorientation_list.clear()
+        if Qp.shape[0]>1:
+        	ui.misorientation_list.addItem('Number, Axis, Angle'+'\n'+'-----------------')
+    		a.plot(B[:,0]+300,B[:,1]+300,'s',color='black')    
+ 		for l in range(0,int(np.shape(S)[0]/3)):
+ 			if ui.axis_checkBox.isChecked():
+ 				saxe=str(int(D1[l,0]))+','+str(int(D1[l,1]))+','+str(int(D1[l,2]))
+        			a.annotate(saxe,(B[l,0]+300,B[l,1]+300),size=8)
+            	
+        		if ui.numbers_checkBox.isChecked():
+            			snum=str(int(D0[l,4]))
+            			a.annotate(snum,(B[l,0]+300,B[l,1]+300),size=10)
+            	
+            		text2mis = str(int(D0[l,4]))+'\t'+'['+str(int(D1[l,0]))+','+str(int(D1[l,1]))+','+str(int(D1[l,2]))+']'+'\t '+str(np.around(D0[l,3],decimals=2))
+            		
+            		ui.misorientation_list.addItem(text2mis)
+
+def desorientation_clear():
+	global Qp
+	Qp=np.zeros((0,2))
+	trace()
+
 #######################################################################
 #######################################################################
 #
@@ -1529,9 +1732,6 @@ def structure(item):
     item= x0[item-1]
     ui.abc_entry.setText(str(item[1])+','+str(item[2])+','+str(item[3]))
     ui.alphabetagamma_entry.setText(str(item[4])+','+str(item[5])+','+str(item[6]))
-    
-    ii=ui.space_group_Box.findText(str(item[7]))
-    ui.space_group_Box.setCurrentIndex(ii)
     if eval(item[4])==90 and eval(item[5])==90 and eval(item[6])==120 :
         ui.hexa_button.setChecked(True)
         ui.e_entry.setText('2')
@@ -1546,9 +1746,6 @@ def structure2(item):
     item= x0[item-1]
     ui.abc_entry_2.setText(str(item[1])+','+str(item[2])+','+str(item[3]))
     ui.alphabetagamma_entry_2.setText(str(item[4])+','+str(item[5])+','+str(item[6]))
-    
-    ii=ui.space_group_Box_2.findText(str(item[7]))
-    ui.space_group_Box_2.setCurrentIndex(ii)
     if eval(item[4])==90 and eval(item[5])==90 and eval(item[6])==120 :
         ui.hexa_button_2.setChecked(True)
         ui.e_entry_2.setText('2')
@@ -1691,7 +1888,8 @@ if __name__ == "__main__":
 	ui.reset_view_button.clicked.connect(reset_view)
 	figure.canvas.mpl_connect('motion_notify_event', coordinates)
 	figure.canvas.mpl_connect('button_press_event', click_a_pole)
-	
+	ui.misorientation_button.clicked.connect(desorientation)
+	ui.clear_misorientation_button.clicked.connect(desorientation_clear)
 # Initialize variables
 	
 	dmip=0
