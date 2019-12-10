@@ -1233,12 +1233,11 @@ def tilt_axes():
 #################################################################### 
 
 def wulff():
-	global a,t_ang
-	t_ang=ang_work_space()
+	global a
 	if ui.wulff_button.isChecked():
 		fn = os.path.join(os.path.dirname(__file__), 'stereo.png')      
 		img=Image.open(fn)
-		img=img.rotate(-t_ang, fillcolor='white')
+		img=img.rotate(float(ang_work_space()), fillcolor='white')
 		img= np.array(img)
 	else:
 		img = 255*np.ones([600,600,3],dtype=np.uint8)
@@ -1247,9 +1246,9 @@ def wulff():
 		a.plot(300,300,'+',markersize=10,mew=3,color='black')
 	
 	a.imshow(img,interpolation="bicubic")
-	a.axis('off')
+	#a.axis('off')
 	plt.tight_layout()	
-    	a.figure.canvas.draw()  
+	a.figure.canvas.draw()  
 	
 def text_label(A,B):
 	Aa=A[0]
@@ -1899,7 +1898,6 @@ if __name__ == "__main__":
 	ui.crystal1_radioButton.setChecked(True)
 	ui.color_trace_bleu.setChecked(True)
 	ui.color_trace_rouge_2.setChecked(True)
-	ui.wulff_button.setChecked(True)
 	ui.wulff_button.setChecked(True)
 	ui.d_label_var.setText('0')
 	ui.d_label_var_2.setText('0')
