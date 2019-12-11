@@ -398,7 +398,8 @@ def lock():
 
 
 def rot_alpha_p():
-    global angle_alpha,M,M2,a,trP,trC,s_a,t_ang
+    global angle_alpha,M,M2,a,trP,trC,s_a
+    t_ang=-ang_work_space()
     i_c=crystal_check()
     tha=s_a*np.float(ui.angle_alpha_entry.text())
     t_a_y=np.dot(Rot(t_ang,0,0,1),np.array([0,1,0]))
@@ -415,7 +416,8 @@ def rot_alpha_p():
     
     
 def rot_alpha_m():
-    global angle_alpha,M,M2,a,trP,trC,s_a,t_ang
+    global angle_alpha,M,M2,a,trP,trC,s_a
+    t_ang=-ang_work_space()
     i_c=crystal_check()
     tha=-s_a*np.float(ui.angle_alpha_entry.text())
     t_a_y=np.dot(Rot(t_ang,0,0,1),np.array([0,1,0]))
@@ -431,7 +433,8 @@ def rot_alpha_m():
 
     
 def rot_beta_m():
-    global angle_beta,M,M2,angle_alpha, angle_z, var_lock, M_lock,s_b,t_ang
+    global angle_beta,M,M2,angle_alpha, angle_z, var_lock, M_lock,s_b
+    t_ang=-ang_work_space()
     i_c=crystal_check()
     t_a_x=np.dot(Rot(t_ang,0,0,1),np.array([1,0,0]))
     
@@ -456,7 +459,8 @@ def rot_beta_m():
 
    
 def rot_beta_p():
-    global angle_beta,M,M2, angle_alpha, angle_z, var_lock, M_lock,s_b,t_ang
+    global angle_beta,M,M2, angle_alpha, angle_z, var_lock, M_lock,s_b
+    t_ang=-ang_work_space()
     i_c=crystal_check()
     t_a_x=np.dot(Rot(t_ang,0,0,1),np.array([1,0,0]))
     if var_lock==0:
@@ -480,7 +484,7 @@ def rot_beta_p():
 
 
 def rot_z_m():
-    global angle_beta,M,M2,angle_alpha, angle_z, var_lock, M_lock,s_z
+    global angle_beta,M,M2,angle_alpha, angle_z, var_lock, M_lock,s_z,t_ang
    
     i_c=crystal_check()
         
@@ -505,7 +509,7 @@ def rot_z_m():
    
    
 def rot_z_p():
-    global angle_beta,M,M2,angle_alpha, angle_z, var_lock, M_lock,s_z
+    global angle_beta,M,M2,angle_alpha, angle_z, var_lock, M_lock,s_z,t_ang
     i_c=crystal_check()
         
     if var_lock==0:
@@ -1246,7 +1250,7 @@ def wulff():
 		a.plot(300,300,'+',markersize=10,mew=3,color='black')
 	
 	a.imshow(img,interpolation="bicubic")
-	#a.axis('off')
+	a.axis('off')
 	plt.tight_layout()	
 	a.figure.canvas.draw()  
 	
